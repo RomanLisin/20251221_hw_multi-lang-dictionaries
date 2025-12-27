@@ -18,7 +18,7 @@ public class WordTranslationField implements Comparable<WordTranslationField> {
     @Override
     public String toString() {
         return "[" +
-                String.join(", " + translations) +
+                String.join(", ", translations) +
                 "] (использований: " +
                 requestsCount + ")";
     }
