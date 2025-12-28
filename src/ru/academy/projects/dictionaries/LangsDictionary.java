@@ -103,7 +103,10 @@ public class LangsDictionary {
         System.out.println("Справка по командам:");
         System.out.println("  слово               — найти перевод слова");
         System.out.println("  -a слово перевод1, перевод2, ... — добавить слово и перевод(ы)");
-        System.out.println("  -lang <from> <to>  — сменить направление перевода (напр.: en ru)");
+        System.out.println("  -d <слово>         - удалить словов с переводами");
+        System.out.println("  -d <слово> <перевод> - удалить выбранный перевод");
+        System.out.println("  -lang <from> <to>  — сменить направление перевода (например: en ru)"
+        + ", \nдобавить новый словарь");
         System.out.println("  -list              — показать все слова в текущем словаре");
         System.out.println("  -top               — показать 10 самых запрашиваемых слов");
         System.out.println("  -low               — показать 10 самых не востребованных слов");
@@ -128,22 +131,44 @@ public class LangsDictionary {
     }
 
     private void replace(String[] partsLine) {
-        if (partsLine.length < 3) {
-            System.out.println("Используйте: -r слово новый_перевод");
+        if (partsLine.length < 4) {
+            System.out.println("Используйте: -r слово <старый перевод> <новый перевод>");
+            System.out.println("Пример: -r cat кот кошка");
             return;
         }
         String word = partsLine[1].toLowerCase();
-        String trInput = partsLine[2];
+        String oldTr = partsLine[2].trim().toLowerCase();
+        String newTr = partsLine[3].trim().toLowerCase();
+
         WordTranslationField entry = getCurrentDict().get(word);
         if (entry == null) {
             System.out.println("Слово отсутствует. Используйте -a.");
             return;
         }
-        entry.translations.clear();
-        for (String tr : trInput.split(",")) {
-            entry.addTranslation(tr);
+
+        boolean replaced = false;
+        List<String> updatedTranslations = new ArrayList<>();
+
+        for (String translation : entry.translations) {
+            if (translation.equalsIgnoreCase(oldTr)) {
+                updatedTranslations.add(newTr);
+                replaced = true;
+            } else {
+                updatedTranslations.add(translation);
+            }
         }
-        System.out.printf("%s → [%s]%n", word, String.join(", ", entry.translations));
+
+        if (replaced) {
+            entry.translations.clear();
+            entry.translations.addAll(updatedTranslations);
+            System.out.printf("Перевод обновлён: %s [%s] -> [%s]%n",
+                    word, oldTr, newTr);
+            System.out.printf("Все переводы для '%s': [%s]%n",
+                    word, String.join(", ", entry.translations));
+        } else {
+            System.out.println("Старый перевод \"" + oldTr + "\" не найден для слова \"" + word + "\"");
+            System.out.println("Доступные переводы: [" + String.join(", ", entry.translations) + "]");
+        }
     }
 
     private void lookup(String word) {
