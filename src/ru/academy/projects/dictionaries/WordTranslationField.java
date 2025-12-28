@@ -15,6 +15,14 @@ public class WordTranslationField implements Comparable<WordTranslationField> {
 
     }
 
+    public boolean removeTranslation(String tr){
+        return translations.removeIf(t -> t.equalsIgnoreCase(tr.trim()));
+    }
+
+    public void clearTranslations(){
+        translations.clear();
+    }
+
     @Override
     public String toString() {
         return "[" +
